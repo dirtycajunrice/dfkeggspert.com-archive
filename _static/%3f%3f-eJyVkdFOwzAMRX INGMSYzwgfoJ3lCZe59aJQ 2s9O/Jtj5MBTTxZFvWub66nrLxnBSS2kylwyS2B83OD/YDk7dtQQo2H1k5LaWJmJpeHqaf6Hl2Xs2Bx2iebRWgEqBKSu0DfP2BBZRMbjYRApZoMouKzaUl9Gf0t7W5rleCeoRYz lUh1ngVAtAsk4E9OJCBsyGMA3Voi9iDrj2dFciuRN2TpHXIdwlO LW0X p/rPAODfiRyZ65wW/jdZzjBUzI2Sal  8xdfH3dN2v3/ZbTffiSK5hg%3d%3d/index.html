@@ -1,0 +1,641 @@
+!function(){function t(){if(this.complete){var e=this.getAttribute("data-lazy-src");if(e&&this.src!==e)this.addEventListener("onload",t);else{var d=this.width,n=this.height;d&&d>0&&n&&n>0&&(this.setAttribute("width",d),this.setAttribute("height",n),i(this))}}else this.addEventListener("onload",t)}var e=function(){for(var e=document.querySelectorAll("img[data-recalc-dims]"),i=0;i<e.length;i++)t.call(e[i])},i=function(t){t.removeAttribute("data-recalc-dims"),t.removeAttribute("scale")};"undefined"!=typeof window&&"undefined"!=typeof document&&("loading"===document.readyState?document.addEventListener("DOMContentLoaded",e):e()),document.body.addEventListener("is.post-load",e)}();;
+!function(){"use strict";const e=e=>Math.abs(parseInt(e,10)),t=(e,t)=>{const r=new Map([["init","init"],["validation_failed","invalid"],["acceptance_missing","unaccepted"],["spam","spam"],["aborted","aborted"],["mail_sent","sent"],["mail_failed","failed"],["submitting","submitting"],["resetting","resetting"],["payment_required","payment-required"]]);r.has(t)&&(t=r.get(t)),Array.from(r.values()).includes(t)||(t=`custom-${t=(t=t.replace(/[^0-9a-z]+/i," ").trim()).replace(/\s+/,"-")}`);const n=e.getAttribute("data-status");return e.wpcf7.status=t,e.setAttribute("data-status",t),e.classList.add(t),n&&n!==t&&e.classList.remove(n),t},r=(e,t,r)=>{const n=new CustomEvent(`wpcf7${t}`,{bubbles:!0,detail:r});"string"==typeof e&&(e=document.querySelector(e)),e.dispatchEvent(n)},n=e=>{const{root:t,namespace:r="contact-form-7/v1"}=wpcf7.api;return a.reduceRight(((e,t)=>r=>t(r,e)),(e=>{let n,a,{url:c,path:s,endpoint:o,headers:i,body:l,data:p,...d}=e;"string"==typeof o&&(n=r.replace(/^\/|\/$/g,""),a=o.replace(/^\//,""),s=a?n+"/"+a:n),"string"==typeof s&&(-1!==t.indexOf("?")&&(s=s.replace("?","&")),s=s.replace(/^\//,""),c=t+s),i={Accept:"application/json, */*;q=0.1",...i},delete i["X-WP-Nonce"],p&&(l=JSON.stringify(p),i["Content-Type"]="application/json");const u={code:"fetch_error",message:"You are probably offline."},f={code:"invalid_json",message:"The response is not a valid JSON response."};return window.fetch(c||s||window.location.href,{...d,headers:i,body:l}).then((e=>Promise.resolve(e).then((e=>{if(e.status>=200&&e.status<300)return e;throw e})).then((e=>{if(204===e.status)return null;if(e&&e.json)return e.json().catch((()=>{throw f}));throw f}))),(()=>{throw u}))}))(e)},a=[];function c(e){let a=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{};if(wpcf7.blocked)return s(e),void t(e,"submitting");const c=new FormData(e);a.submitter&&a.submitter.name&&c.append(a.submitter.name,a.submitter.value);const o={contactFormId:e.wpcf7.id,pluginVersion:e.wpcf7.pluginVersion,contactFormLocale:e.wpcf7.locale,unitTag:e.wpcf7.unitTag,containerPostId:e.wpcf7.containerPost,status:e.wpcf7.status,inputs:Array.from(c,(e=>{const t=e[0],r=e[1];return!t.match(/^_/)&&{name:t,value:r}})).filter((e=>!1!==e)),formData:c},i=t=>{const r=document.createElement("li");r.setAttribute("id",t.error_id),t.idref?r.insertAdjacentHTML("beforeend",`<a href="#${t.idref}">${t.message}</a>`):r.insertAdjacentText("beforeend",t.message),e.wpcf7.parent.querySelector(".screen-reader-response ul").appendChild(r)},l=t=>{const r=e.querySelector(t.into),n=r.querySelector(".wpcf7-form-control");n.classList.add("wpcf7-not-valid"),n.setAttribute("aria-describedby",t.error_id);const a=document.createElement("span");a.setAttribute("class","wpcf7-not-valid-tip"),a.setAttribute("aria-hidden","true"),a.insertAdjacentText("beforeend",t.message),r.appendChild(a),r.querySelectorAll("[aria-invalid]").forEach((e=>{e.setAttribute("aria-invalid","true")})),n.closest(".use-floating-validation-tip")&&(n.addEventListener("focus",(e=>{a.setAttribute("style","display: none")})),a.addEventListener("mouseover",(e=>{a.setAttribute("style","display: none")})))};n({endpoint:`contact-forms/${e.wpcf7.id}/feedback`,method:"POST",body:c,wpcf7:{endpoint:"feedback",form:e,detail:o}}).then((n=>{const a=t(e,n.status);return o.status=n.status,o.apiResponse=n,["invalid","unaccepted","spam","aborted"].includes(a)?r(e,a,o):["sent","failed"].includes(a)&&r(e,`mail${a}`,o),r(e,"submit",o),n})).then((t=>{t.posted_data_hash&&(e.querySelector('input[name="_wpcf7_posted_data_hash"]').value=t.posted_data_hash),"mail_sent"===t.status&&(e.reset(),e.wpcf7.resetOnMailSent=!0),t.invalid_fields&&(t.invalid_fields.forEach(i),t.invalid_fields.forEach(l)),e.wpcf7.parent.querySelector('.screen-reader-response [role="status"]').insertAdjacentText("beforeend",t.message),e.querySelectorAll(".wpcf7-response-output").forEach((e=>{e.innerText=t.message}))})).catch((e=>console.error(e)))}n.use=e=>{a.unshift(e)},n.use(((e,n)=>{if(e.wpcf7&&"feedback"===e.wpcf7.endpoint){const{form:n,detail:a}=e.wpcf7;s(n),r(n,"beforesubmit",a),t(n,"submitting")}return n(e)}));const s=e=>{e.wpcf7.parent.querySelector('.screen-reader-response [role="status"]').innerText="",e.wpcf7.parent.querySelector(".screen-reader-response ul").innerText="",e.querySelectorAll(".wpcf7-not-valid-tip").forEach((e=>{e.remove()})),e.querySelectorAll("[aria-invalid]").forEach((e=>{e.setAttribute("aria-invalid","false")})),e.querySelectorAll(".wpcf7-form-control").forEach((e=>{e.removeAttribute("aria-describedby"),e.classList.remove("wpcf7-not-valid")})),e.querySelectorAll(".wpcf7-response-output").forEach((e=>{e.innerText=""}))};function o(e){const a=new FormData(e),c={contactFormId:e.wpcf7.id,pluginVersion:e.wpcf7.pluginVersion,contactFormLocale:e.wpcf7.locale,unitTag:e.wpcf7.unitTag,containerPostId:e.wpcf7.containerPost,status:e.wpcf7.status,inputs:Array.from(a,(e=>{const t=e[0],r=e[1];return!t.match(/^_/)&&{name:t,value:r}})).filter((e=>!1!==e)),formData:a};n({endpoint:`contact-forms/${e.wpcf7.id}/refill`,method:"GET",wpcf7:{endpoint:"refill",form:e,detail:c}}).then((n=>{e.wpcf7.resetOnMailSent?(delete e.wpcf7.resetOnMailSent,t(e,"mail_sent")):t(e,"init"),c.apiResponse=n,r(e,"reset",c)})).catch((e=>console.error(e)))}n.use(((e,r)=>{if(e.wpcf7&&"refill"===e.wpcf7.endpoint){const{form:r,detail:n}=e.wpcf7;s(r),t(r,"resetting")}return r(e)}));const i=(e,t)=>{for(const r in t){const n=t[r];e.querySelectorAll(`input[name="${r}"]`).forEach((e=>{e.value=""})),e.querySelectorAll(`img.wpcf7-captcha-${r}`).forEach((e=>{e.setAttribute("src",n)}));const a=/([0-9]+)\.(png|gif|jpeg)$/.exec(n);a&&e.querySelectorAll(`input[name="_wpcf7_captcha_challenge_${r}"]`).forEach((e=>{e.value=a[1]}))}},l=(e,t)=>{for(const r in t){const n=t[r][0],a=t[r][1];e.querySelectorAll(`.wpcf7-form-control-wrap.${r}`).forEach((e=>{e.querySelector(`input[name="${r}"]`).value="",e.querySelector(".wpcf7-quiz-label").textContent=n,e.querySelector(`input[name="_wpcf7_quiz_answer_${r}"]`).value=a}))}};function p(t){const r=new FormData(t);t.wpcf7={id:e(r.get("_wpcf7")),status:t.getAttribute("data-status"),pluginVersion:r.get("_wpcf7_version"),locale:r.get("_wpcf7_locale"),unitTag:r.get("_wpcf7_unit_tag"),containerPost:e(r.get("_wpcf7_container_post")),parent:t.closest(".wpcf7")},t.querySelectorAll(".has-spinner").forEach((e=>{e.insertAdjacentHTML("afterend",'<span class="wpcf7-spinner"></span>')})),(e=>{e.querySelectorAll(".wpcf7-exclusive-checkbox").forEach((t=>{t.addEventListener("change",(t=>{const r=t.target.getAttribute("name");e.querySelectorAll(`input[type="checkbox"][name="${r}"]`).forEach((e=>{e!==t.target&&(e.checked=!1)}))}))}))})(t),(e=>{e.querySelectorAll(".has-free-text").forEach((t=>{const r=t.querySelector("input.wpcf7-free-text"),n=t.querySelector('input[type="checkbox"], input[type="radio"]');r.disabled=!n.checked,e.addEventListener("change",(e=>{r.disabled=!n.checked,e.target===n&&n.checked&&r.focus()}))}))})(t),(e=>{e.querySelectorAll(".wpcf7-validates-as-url").forEach((e=>{e.addEventListener("change",(t=>{let r=e.value.trim();r&&!r.match(/^[a-z][a-z0-9.+-]*:/i)&&-1!==r.indexOf(".")&&(r=r.replace(/^\/+/,""),r="http://"+r),e.value=r}))}))})(t),(e=>{if(!e.querySelector(".wpcf7-acceptance")||e.classList.contains("wpcf7-acceptance-as-validation"))return;const t=()=>{let t=!0;e.querySelectorAll(".wpcf7-acceptance").forEach((e=>{if(!t||e.classList.contains("optional"))return;const r=e.querySelector('input[type="checkbox"]');(e.classList.contains("invert")&&r.checked||!e.classList.contains("invert")&&!r.checked)&&(t=!1)})),e.querySelectorAll(".wpcf7-submit").forEach((e=>{e.disabled=!t}))};t(),e.addEventListener("change",(e=>{t()})),e.addEventListener("wpcf7reset",(e=>{t()}))})(t),(t=>{const r=(t,r)=>{const n=e(t.getAttribute("data-starting-value")),a=e(t.getAttribute("data-maximum-value")),c=e(t.getAttribute("data-minimum-value")),s=t.classList.contains("down")?n-r.value.length:r.value.length;t.setAttribute("data-current-value",s),t.innerText=s,a&&a<r.value.length?t.classList.add("too-long"):t.classList.remove("too-long"),c&&r.value.length<c?t.classList.add("too-short"):t.classList.remove("too-short")},n=e=>{e={init:!1,...e},t.querySelectorAll(".wpcf7-character-count").forEach((n=>{const a=n.getAttribute("data-target-name"),c=t.querySelector(`[name="${a}"]`);c&&(c.value=c.defaultValue,r(n,c),e.init&&c.addEventListener("keyup",(e=>{r(n,c)})))}))};n({init:!0}),t.addEventListener("wpcf7reset",(e=>{n()}))})(t),window.addEventListener("load",(e=>{wpcf7.cached&&t.reset()})),t.addEventListener("reset",(e=>{wpcf7.reset(t)})),t.addEventListener("submit",(e=>{const r=e.submitter;wpcf7.submit(t,{submitter:r}),e.preventDefault()})),t.addEventListener("wpcf7submit",(e=>{e.detail.apiResponse.captcha&&i(t,e.detail.apiResponse.captcha),e.detail.apiResponse.quiz&&l(t,e.detail.apiResponse.quiz)})),t.addEventListener("wpcf7reset",(e=>{e.detail.apiResponse.captcha&&i(t,e.detail.apiResponse.captcha),e.detail.apiResponse.quiz&&l(t,e.detail.apiResponse.quiz)}))}document.addEventListener("DOMContentLoaded",(e=>{var t;if("undefined"==typeof wpcf7)return void console.error("wpcf7 is not defined.");if(void 0===wpcf7.api)return void console.error("wpcf7.api is not defined.");if("function"!=typeof window.fetch)return void console.error("Your browser doesn't support window.fetch().");if("function"!=typeof window.FormData)return void console.error("Your browser doesn't support window.FormData().");const r=document.querySelectorAll(".wpcf7 > form");"function"==typeof r.forEach?(wpcf7={init:p,submit:c,reset:o,...null!==(t=wpcf7)&&void 0!==t?t:{}},r.forEach((e=>wpcf7.init(e)))):console.error("Your browser doesn't support NodeList.forEach().")}))}();;
+(function( $ ) {
+	'use strict';
+
+	/**
+	 * All of the code for your public-facing JavaScript source
+	 * should reside in this file.
+	 *
+	 * Note: It has been assumed you will write jQuery code here, so the
+	 * $ function reference has been prepared for usage within the scope
+	 * of this function.
+	 *
+	 * This enables you to define handlers, for when the DOM is ready:
+	 *
+	 * $(function() {
+	 *
+	 * });
+	 *
+	 * When the window is loaded:
+	 *
+	 * $( window ).load(function() {
+	 *
+	 * });
+	 *
+	 * ...and/or other possibilities.
+	 *
+	 * Ideally, it is not considered best practise to attach more than a
+	 * single DOM-ready or window-load handler for a particular page.
+	 * Although scripts in the WordPress core, Plugins and Themes may be
+	 * practising this, we should strive to set a better example in our own work.
+	 */
+})( jQuery );
+;
+/**
+ * File skip-link-focus-fix.js.
+ *
+ * Helps with accessibility for keyboard only users.
+ *
+ * Learn more: https://git.io/vWdr2
+ */
+(function() {
+	var isIe = /(trident|msie)/i.test( navigator.userAgent );
+
+	if ( isIe && document.getElementById && window.addEventListener ) {
+		window.addEventListener( 'hashchange', function() {
+			var id = location.hash.substring( 1 ),
+				element;
+
+			if ( ! ( /^[A-z0-9_-]+$/.test( id ) ) ) {
+				return;
+			}
+
+			element = document.getElementById( id );
+
+			if ( element ) {
+				if ( ! ( /^(?:a|select|input|button|textarea)$/i.test( element.tagName ) ) ) {
+					element.tabIndex = -1;
+				}
+
+				element.focus();
+			}
+		}, false );
+	}
+})();
+;
+/* global twentyseventeenScreenReaderText */
+/**
+ * Theme functions file.
+ *
+ * Contains handlers for navigation and widget area.
+ */
+
+(function( $ ) {
+	var masthead, menuToggle, siteNavContain, siteNavigation;
+
+	function initMainNavigation( container ) {
+
+		// Add dropdown toggle that displays child menu items.
+		var dropdownToggle = $( '<button />', { 'class': 'dropdown-toggle', 'aria-expanded': false })
+			.append( twentyseventeenScreenReaderText.icon )
+			.append( $( '<span />', { 'class': 'screen-reader-text', text: twentyseventeenScreenReaderText.expand }) );
+
+		container.find( '.menu-item-has-children > a, .page_item_has_children > a' ).after( dropdownToggle );
+
+		// Set the active submenu dropdown toggle button initial state.
+		container.find( '.current-menu-ancestor > button' )
+			.addClass( 'toggled-on' )
+			.attr( 'aria-expanded', 'true' )
+			.find( '.screen-reader-text' )
+			.text( twentyseventeenScreenReaderText.collapse );
+		// Set the active submenu initial state.
+		container.find( '.current-menu-ancestor > .sub-menu' ).addClass( 'toggled-on' );
+
+		container.find( '.dropdown-toggle' ).on( 'click', function( e ) {
+			var _this = $( this ),
+				screenReaderSpan = _this.find( '.screen-reader-text' );
+
+			e.preventDefault();
+			_this.toggleClass( 'toggled-on' );
+			_this.next( '.children, .sub-menu' ).toggleClass( 'toggled-on' );
+
+			_this.attr( 'aria-expanded', _this.attr( 'aria-expanded' ) === 'false' ? 'true' : 'false' );
+
+			screenReaderSpan.text( screenReaderSpan.text() === twentyseventeenScreenReaderText.expand ? twentyseventeenScreenReaderText.collapse : twentyseventeenScreenReaderText.expand );
+		});
+	}
+
+	initMainNavigation( $( '.main-navigation' ) );
+
+	masthead       = $( '#masthead' );
+	menuToggle     = masthead.find( '.menu-toggle' );
+	siteNavContain = masthead.find( '.main-navigation' );
+	siteNavigation = masthead.find( '.main-navigation > div > ul' );
+
+	// Enable menuToggle.
+	(function() {
+
+		// Return early if menuToggle is missing.
+		if ( ! menuToggle.length ) {
+			return;
+		}
+
+		// Add an initial value for the attribute.
+		menuToggle.attr( 'aria-expanded', 'false' );
+
+		menuToggle.on( 'click.twentyseventeen', function() {
+			siteNavContain.toggleClass( 'toggled-on' );
+
+			$( this ).attr( 'aria-expanded', siteNavContain.hasClass( 'toggled-on' ) );
+		});
+	})();
+
+	// Fix sub-menus for touch devices and better focus for hidden submenu items for accessibility.
+	(function() {
+		if ( ! siteNavigation.length || ! siteNavigation.children().length ) {
+			return;
+		}
+
+		// Toggle `focus` class to allow submenu access on tablets.
+		function toggleFocusClassTouchScreen() {
+			if ( 'none' === $( '.menu-toggle' ).css( 'display' ) ) {
+
+				$( document.body ).on( 'touchstart.twentyseventeen', function( e ) {
+					if ( ! $( e.target ).closest( '.main-navigation li' ).length ) {
+						$( '.main-navigation li' ).removeClass( 'focus' );
+					}
+				});
+
+				siteNavigation.find( '.menu-item-has-children > a, .page_item_has_children > a' )
+					.on( 'touchstart.twentyseventeen', function( e ) {
+						var el = $( this ).parent( 'li' );
+
+						if ( ! el.hasClass( 'focus' ) ) {
+							e.preventDefault();
+							el.toggleClass( 'focus' );
+							el.siblings( '.focus' ).removeClass( 'focus' );
+						}
+					});
+
+			} else {
+				siteNavigation.find( '.menu-item-has-children > a, .page_item_has_children > a' ).unbind( 'touchstart.twentyseventeen' );
+			}
+		}
+
+		if ( 'ontouchstart' in window ) {
+			$( window ).on( 'resize.twentyseventeen', toggleFocusClassTouchScreen );
+			toggleFocusClassTouchScreen();
+		}
+
+		siteNavigation.find( 'a' ).on( 'focus.twentyseventeen blur.twentyseventeen', function() {
+			$( this ).parents( '.menu-item, .page_item' ).toggleClass( 'focus' );
+		});
+	})();
+})( jQuery );
+;
+/* global twentyseventeenScreenReaderText */
+(function( $ ) {
+
+	// Variables and DOM Caching.
+	var $body = $( 'body' ),
+		$customHeader = $body.find( '.custom-header' ),
+		$branding = $customHeader.find( '.site-branding' ),
+		$navigation = $body.find( '.navigation-top' ),
+		$navWrap = $navigation.find( '.wrap' ),
+		$navMenuItem = $navigation.find( '.menu-item' ),
+		$menuToggle = $navigation.find( '.menu-toggle' ),
+		$menuScrollDown = $body.find( '.menu-scroll-down' ),
+		$sidebar = $body.find( '#secondary' ),
+		$entryContent = $body.find( '.entry-content' ),
+		$formatQuote = $body.find( '.format-quote blockquote' ),
+		isFrontPage = $body.hasClass( 'twentyseventeen-front-page' ) || $body.hasClass( 'home blog' ),
+		navigationFixedClass = 'site-navigation-fixed',
+		navigationHeight,
+		navigationOuterHeight,
+		navPadding,
+		navMenuItemHeight,
+		idealNavHeight,
+		navIsNotTooTall,
+		headerOffset,
+		menuTop = 0,
+		resizeTimer;
+
+	// Ensure the sticky navigation doesn't cover current focused links.
+	$( 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex], [contenteditable]', '.site-content-contain' ).filter( ':visible' ).on( 'focus', function() {
+		if ( $navigation.hasClass( 'site-navigation-fixed' ) ) {
+			var windowScrollTop = $( window ).scrollTop(),
+				fixedNavHeight = $navigation.height(),
+				itemScrollTop = $( this ).offset().top,
+				offsetDiff = itemScrollTop - windowScrollTop;
+
+			// Account for Admin bar.
+			if ( $( '#wpadminbar' ).length ) {
+				offsetDiff -= $( '#wpadminbar' ).height();
+			}
+
+			if ( offsetDiff < fixedNavHeight ) {
+				$( window ).scrollTo( itemScrollTop - ( fixedNavHeight + 50 ), 0 );
+			}
+		}
+	});
+
+	// Set properties of navigation.
+	function setNavProps() {
+		navigationHeight      = $navigation.height();
+		navigationOuterHeight = $navigation.outerHeight();
+		navPadding            = parseFloat( $navWrap.css( 'padding-top' ) ) * 2;
+		navMenuItemHeight     = $navMenuItem.outerHeight() * 2;
+		idealNavHeight        = navPadding + navMenuItemHeight;
+		navIsNotTooTall       = navigationHeight <= idealNavHeight;
+	}
+
+	// Make navigation 'stick'.
+	function adjustScrollClass() {
+
+		// Make sure we're not on a mobile screen.
+		if ( 'none' === $menuToggle.css( 'display' ) ) {
+
+			// Make sure the nav isn't taller than two rows.
+			if ( navIsNotTooTall ) {
+
+				// When there's a custom header image or video, the header offset includes the height of the navigation.
+				if ( isFrontPage && ( $body.hasClass( 'has-header-image' ) || $body.hasClass( 'has-header-video' ) ) ) {
+					headerOffset = $customHeader.innerHeight() - navigationOuterHeight;
+				} else {
+					headerOffset = $customHeader.innerHeight();
+				}
+
+				// If the scroll is more than the custom header, set the fixed class.
+				if ( $( window ).scrollTop() >= headerOffset ) {
+					$navigation.addClass( navigationFixedClass );
+				} else {
+					$navigation.removeClass( navigationFixedClass );
+				}
+
+			} else {
+
+				// Remove 'fixed' class if nav is taller than two rows.
+				$navigation.removeClass( navigationFixedClass );
+			}
+		}
+	}
+
+	// Set margins of branding in header.
+	function adjustHeaderHeight() {
+		if ( 'none' === $menuToggle.css( 'display' ) ) {
+
+			// The margin should be applied to different elements on front-page or home vs interior pages.
+			if ( isFrontPage ) {
+				$branding.css( 'margin-bottom', navigationOuterHeight );
+			} else {
+				$customHeader.css( 'margin-bottom', navigationOuterHeight );
+			}
+
+		} else {
+			$customHeader.css( 'margin-bottom', '0' );
+			$branding.css( 'margin-bottom', '0' );
+		}
+	}
+
+	// Set icon for quotes.
+	function setQuotesIcon() {
+		$( twentyseventeenScreenReaderText.quote ).prependTo( $formatQuote );
+	}
+
+	// Add 'below-entry-meta' class to elements.
+	function belowEntryMetaClass( param ) {
+		var sidebarPos, sidebarPosBottom;
+
+		if ( ! $body.hasClass( 'has-sidebar' ) ||
+			typeof $sidebar === 'undefined' ||
+			$sidebar.length < 1 || (
+			$body.hasClass( 'search' ) ||
+			$body.hasClass( 'single-attachment' ) ||
+			$body.hasClass( 'error404' ) ||
+			$body.hasClass( 'twentyseventeen-front-page' )
+		) ) {
+			return;
+		}
+
+		sidebarPos       = $sidebar.offset();
+		sidebarPosBottom = sidebarPos.top + ( $sidebar.height() + 28 );
+
+		$entryContent.find( param ).each( function() {
+			var $element = $( this ),
+				elementPos = $element.offset(),
+				elementPosTop = elementPos.top;
+
+			// Add 'below-entry-meta' to elements below the entry meta.
+			if ( elementPosTop > sidebarPosBottom ) {
+				$element.addClass( 'below-entry-meta' );
+			} else {
+				$element.removeClass( 'below-entry-meta' );
+			}
+		});
+	}
+
+	/*
+	 * Test if inline SVGs are supported.
+	 * @link https://github.com/Modernizr/Modernizr/
+	 */
+	function supportsInlineSVG() {
+		var div = document.createElement( 'div' );
+		div.innerHTML = '<svg/>';
+		return 'http://www.w3.org/2000/svg' === ( 'undefined' !== typeof SVGRect && div.firstChild && div.firstChild.namespaceURI );
+	}
+
+	/**
+	 * Test if an iOS device.
+	*/
+	function checkiOS() {
+		return /iPad|iPhone|iPod/.test(navigator.userAgent) && ! window.MSStream;
+	}
+
+	/*
+	 * Test if background-attachment: fixed is supported.
+	 * @link http://stackoverflow.com/questions/14115080/detect-support-for-background-attachment-fixed
+	 */
+	function supportsFixedBackground() {
+		var el = document.createElement('div'),
+			isSupported;
+
+		try {
+			if ( ! ( 'backgroundAttachment' in el.style ) || checkiOS() ) {
+				return false;
+			}
+			el.style.backgroundAttachment = 'fixed';
+			isSupported = ( 'fixed' === el.style.backgroundAttachment );
+			return isSupported;
+		}
+		catch (e) {
+			return false;
+		}
+	}
+
+	// Fire on document ready.
+	$( document ).ready( function() {
+
+		// If navigation menu is present on page, setNavProps and adjustScrollClass.
+		if ( $navigation.length ) {
+			setNavProps();
+			adjustScrollClass();
+		}
+
+		// If 'Scroll Down' arrow in present on page, calculate scroll offset and bind an event handler to the click event.
+		if ( $menuScrollDown.length ) {
+
+			if ( $( 'body' ).hasClass( 'admin-bar' ) ) {
+				menuTop -= 32;
+			}
+			if ( $( 'body' ).hasClass( 'blog' ) ) {
+				menuTop -= 30; // The div for latest posts has no space above content, add some to account for this.
+			}
+			if ( ! $navigation.length ) {
+				navigationOuterHeight = 0;
+			}
+
+			$menuScrollDown.on( 'click', function( e ) {
+				e.preventDefault();
+				$( window ).scrollTo( '#primary', {
+					duration: 600,
+					offset: { top: menuTop - navigationOuterHeight }
+				});
+			});
+		}
+
+		adjustHeaderHeight();
+		setQuotesIcon();
+		belowEntryMetaClass( 'blockquote.alignleft, blockquote.alignright' );
+		if ( true === supportsInlineSVG() ) {
+			document.documentElement.className = document.documentElement.className.replace( /(\s*)no-svg(\s*)/, '$1svg$2' );
+		}
+
+		if ( true === supportsFixedBackground() ) {
+			document.documentElement.className += ' background-fixed';
+		}
+	});
+
+	// If navigation menu is present on page, adjust it on scroll and screen resize.
+	if ( $navigation.length ) {
+
+		// On scroll, we want to stick/unstick the navigation.
+		$( window ).on( 'scroll', function() {
+			adjustScrollClass();
+			adjustHeaderHeight();
+		});
+
+		// Also want to make sure the navigation is where it should be on resize.
+		$( window ).on( 'resize', function() {
+			setNavProps();
+			setTimeout( adjustScrollClass, 500 );
+		});
+	}
+
+	$( window ).on( 'resize', function() {
+		clearTimeout( resizeTimer );
+		resizeTimer = setTimeout( function() {
+			belowEntryMetaClass( 'blockquote.alignleft, blockquote.alignright' );
+		}, 300 );
+		setTimeout( adjustHeaderHeight, 1000 );
+	});
+
+	// Add header video class after the video is loaded.
+	$( document ).on( 'wp-custom-header-video-loaded', function() {
+		$body.addClass( 'has-header-video' );
+	});
+
+})( jQuery );
+;
+/*!
+ * jQuery.scrollTo
+ * Copyright (c) 2007-2015 Ariel Flesler - aflesler<a>gmail<d>com | http://flesler.blogspot.com
+ * Licensed under MIT
+ * http://flesler.blogspot.com/2007/10/jqueryscrollto.html
+ * @projectDescription Lightweight, cross-browser and highly customizable animated scrolling with jQuery
+ * @author Ariel Flesler
+ * @version 2.1.2
+ */
+;(function(factory) {
+	'use strict';
+	if (typeof define === 'function' && define.amd) {
+		// AMD
+		define( ['jquery'], factory );
+	} else if (typeof module !== 'undefined' && module.exports) {
+		// CommonJS
+		module.exports = factory( require( 'jquery' ) );
+	} else {
+		// Global
+		factory( jQuery );
+	}
+})(function($) {
+	'use strict';
+
+	var $scrollTo = $.scrollTo = function(target, duration, settings) {
+		return $( window ).scrollTo( target, duration, settings );
+	};
+
+	$scrollTo.defaults = {
+		axis:'xy',
+		duration: 0,
+		limit:true
+	};
+
+	function isWin(elem) {
+		return ! elem.nodeName ||
+			$.inArray( elem.nodeName.toLowerCase(), ['iframe','#document','html','body'] ) !== -1;
+	}
+
+	$.fn.scrollTo = function(target, duration, settings) {
+		if (typeof duration === 'object') {
+			settings = duration;
+			duration = 0;
+		}
+		if (typeof settings === 'function') {
+			settings = { onAfter:settings };
+		}
+		if (target === 'max') {
+			target = 9e9;
+		}
+
+		settings = $.extend( {}, $scrollTo.defaults, settings );
+		// Speed is still recognized for backwards compatibility
+		duration = duration || settings.duration;
+		// Make sure the settings are given right
+		var queue = settings.queue && settings.axis.length > 1;
+		if (queue) {
+			// Let's keep the overall duration
+			duration /= 2;
+		}
+		settings.offset = both( settings.offset );
+		settings.over = both( settings.over );
+
+		return this.each(function() {
+			// Null target yields nothing, just like jQuery does
+			if (target === null) { return; }
+
+			var win = isWin( this ),
+				elem = win ? this.contentWindow || window : this,
+				$elem = $( elem ),
+				targ = target,
+				attr = {},
+				toff;
+
+			switch (typeof targ) {
+				// A number will pass the regex
+				case 'number':
+				case 'string':
+					if (/^([+-]=?)?\d+(\.\d+)?(px|%)?$/.test( targ )) {
+						targ = both( targ );
+						// We are done
+						break;
+					}
+					// Relative/Absolute selector
+					targ = win ? $( targ ) : $( targ, elem );
+					/* falls through */
+				case 'object':
+					if (targ.length === 0) { return; }
+					// DOMElement / jQuery
+					if (targ.is || targ.style) {
+						// Get the real position of the target
+						toff = (targ = $( targ )).offset();
+					}
+			}
+
+			var offset = $.isFunction( settings.offset ) && settings.offset( elem, targ ) || settings.offset;
+
+			$.each(settings.axis.split( '' ), function(i, axis) {
+				var Pos	= axis === 'x' ? 'Left' : 'Top',
+					pos = Pos.toLowerCase(),
+					key = 'scroll' + Pos,
+					prev = $elem[key](),
+					max = $scrollTo.max( elem, axis );
+
+				if (toff) {// jQuery / DOMElement
+					attr[key] = toff[pos] + (win ? 0 : prev - $elem.offset()[pos]);
+
+					// If it's a dom element, reduce the margin
+					if (settings.margin) {
+						attr[key] -= parseInt( targ.css( 'margin' + Pos ), 10 ) || 0;
+						attr[key] -= parseInt( targ.css( 'border' + Pos + 'Width' ), 10 ) || 0;
+					}
+
+					attr[key] += offset[pos] || 0;
+
+					if (settings.over[pos]) {
+						// Scroll to a fraction of its width/height
+						attr[key] += targ[axis === 'x'?'width':'height']() * settings.over[pos];
+					}
+				} else {
+					var val = targ[pos];
+					// Handle percentage values
+					attr[key] = val.slice && val.slice( -1 ) === '%' ?
+						parseFloat( val ) / 100 * max
+						: val;
+				}
+
+				// Number or 'number'
+				if (settings.limit && /^\d+$/.test( attr[key] )) {
+					// Check the limits
+					attr[key] = attr[key] <= 0 ? 0 : Math.min( attr[key], max );
+				}
+
+				// Don't waste time animating, if there's no need.
+				if ( ! i && settings.axis.length > 1) {
+					if (prev === attr[key]) {
+						// No animation needed
+						attr = {};
+					} else if (queue) {
+						// Intermediate animation
+						animate( settings.onAfterFirst );
+						// Don't animate this axis again in the next iteration.
+						attr = {};
+					}
+				}
+			});
+
+			animate( settings.onAfter );
+
+			function animate(callback) {
+				var opts = $.extend({}, settings, {
+					// The queue setting conflicts with animate()
+					// Force it to always be true
+					queue: true,
+					duration: duration,
+					complete: callback && function() {
+						callback.call( elem, targ, settings );
+					}
+				});
+				$elem.animate( attr, opts );
+			}
+		});
+	};
+
+	// Max scrolling position, works on quirks mode
+	// It only fails (not too badly) on IE, quirks mode.
+	$scrollTo.max = function(elem, axis) {
+		var Dim = axis === 'x' ? 'Width' : 'Height',
+			scroll = 'scroll' + Dim;
+
+		if ( ! isWin( elem )) {
+			return elem[scroll] - $( elem )[Dim.toLowerCase()](); }
+
+		var size = 'client' + Dim,
+			doc = elem.ownerDocument || elem.document,
+			html = doc.documentElement,
+			body = doc.body;
+
+		return Math.max( html[scroll], body[scroll] ) - Math.min( html[size], body[size] );
+	};
+
+	function both(val) {
+		return $.isFunction( val ) || $.isPlainObject( val ) ? val : { top:val, left:val };
+	}
+
+	// Add special hooks so that window scroll properties can be animated
+	$.Tween.propHooks.scrollLeft = $.Tween.propHooks.scrollTop = {
+		get: function(t) {
+			return $( t.elem )[t.prop]();
+		},
+		set: function(t) {
+			var curr = this.get( t );
+			// If interrupt is true and user scrolled, stop animating
+			if (t.options.interrupt && t._last && t._last !== curr) {
+				return $( t.elem ).stop();
+			}
+			var next = Math.round( t.now );
+			// Don't waste CPU
+			// Browsers don't render floating point scroll
+			if (curr !== next) {
+				$( t.elem )[t.prop](next);
+				t._last = this.get( t );
+			}
+		}
+	};
+
+	// AMD requirement
+	return $scrollTo;
+});
+;
+/*! This file is auto-generated */
+window.addComment=function(v){var I,C,h,E=v.document,b={commentReplyClass:"comment-reply-link",commentReplyTitleId:"reply-title",cancelReplyId:"cancel-comment-reply-link",commentFormId:"commentform",temporaryFormId:"wp-temp-form-div",parentIdFieldId:"comment_parent",postIdFieldId:"comment_post_ID"},e=v.MutationObserver||v.WebKitMutationObserver||v.MozMutationObserver,r="querySelector"in E&&"addEventListener"in v,n=!!E.documentElement.dataset;function t(){d(),e&&new e(o).observe(E.body,{childList:!0,subtree:!0})}function d(e){if(r&&(I=g(b.cancelReplyId),C=g(b.commentFormId),I)){I.addEventListener("touchstart",l),I.addEventListener("click",l);function t(e){if((e.metaKey||e.ctrlKey)&&13===e.keyCode)return C.removeEventListener("keydown",t),e.preventDefault(),C.submit.click(),!1}C&&C.addEventListener("keydown",t);for(var n,d=function(e){var t=b.commentReplyClass;e&&e.childNodes||(e=E);t=E.getElementsByClassName?e.getElementsByClassName(t):e.querySelectorAll("."+t);return t}(e),o=0,i=d.length;o<i;o++)(n=d[o]).addEventListener("touchstart",a),n.addEventListener("click",a)}}function l(e){var t,n,d=g(b.temporaryFormId);d&&h&&(g(b.parentIdFieldId).value="0",t=d.textContent,d.parentNode.replaceChild(h,d),this.style.display="none",n=(d=(n=g(b.commentReplyTitleId))&&n.firstChild)&&d.nextSibling,d&&d.nodeType===Node.TEXT_NODE&&t&&(n&&"A"===n.nodeName&&n.id!==b.cancelReplyId&&(n.style.display=""),d.textContent=t),e.preventDefault())}function a(e){var t=g(b.commentReplyTitleId),n=t&&t.firstChild.textContent,d=this,o=m(d,"belowelement"),i=m(d,"commentid"),r=m(d,"respondelement"),t=m(d,"postid"),n=m(d,"replyto")||n;o&&i&&r&&t&&!1===v.addComment.moveForm(o,i,r,t,n)&&e.preventDefault()}function o(e){for(var t=e.length;t--;)if(e[t].addedNodes.length)return void d()}function m(e,t){return n?e.dataset[t]:e.getAttribute("data-"+t)}function g(e){return E.getElementById(e)}return r&&"loading"!==E.readyState?t():r&&v.addEventListener("DOMContentLoaded",t,!1),{init:d,moveForm:function(e,t,n,d,o){var i=g(e);h=g(n);var r,l,a,m,c,s=g(b.parentIdFieldId),y=g(b.postIdFieldId),p=(c=g(b.commentReplyTitleId))&&c.firstChild,u=p&&p.nextSibling;if(i&&h&&s){void 0===o&&(o=p&&p.textContent),m=h,e=b.temporaryFormId,n=g(e),c=(c=g(b.commentReplyTitleId))?c.firstChild.textContent:"",n||((n=E.createElement("div")).id=e,n.style.display="none",n.textContent=c,m.parentNode.insertBefore(n,m)),d&&y&&(y.value=d),s.value=t,I.style.display="",i.parentNode.insertBefore(h,i.nextSibling),p&&p.nodeType===Node.TEXT_NODE&&(u&&"A"===u.nodeName&&u.id!==b.cancelReplyId&&(u.style.display="none"),p.textContent=o),I.onclick=function(){return!1};try{for(var f=0;f<C.elements.length;f++)if(r=C.elements[f],l=!1,"getComputedStyle"in v?a=v.getComputedStyle(r):E.documentElement.currentStyle&&(a=r.currentStyle),(r.offsetWidth<=0&&r.offsetHeight<=0||"hidden"===a.visibility)&&(l=!0),"hidden"!==r.type&&!r.disabled&&!l){r.focus();break}}catch(e){}return!1}}}}(window);;
